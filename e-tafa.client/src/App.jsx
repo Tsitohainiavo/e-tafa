@@ -20,109 +20,163 @@ import {
     Divider,
     Fade
 } from "@mui/material";
-import { FaEye, FaEyeSlash, FaGoogle, FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaGoogle, FaUser, FaEnvelope, FaLock, FaComments, FaPaperPlane } from "react-icons/fa";
 
 const StyledCard = styled(Card)(({ theme }) => ({
     maxWidth: 600,
     margin: "1rem auto",
-    padding: "2rem",
-    background: "#ffffff",
+    padding: "1.5rem",
+    background: "rgba(255, 255, 255, 0.9)",
+    backdropFilter: "blur(12px)",
     boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
-    borderRadius: "20px",
-    border: "1px solid rgba(0, 0, 0, 0.05)",
+    borderRadius: "16px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
     transition: "transform 0.4s ease, box-shadow 0.4s ease",
     "&:hover": {
         transform: "translateY(-8px)",
         boxShadow: "0 12px 40px rgba(0, 0, 0, 0.12)"
     },
     [theme.breakpoints.down('sm')]: {
-        padding: "1.5rem",
+        padding: "1rem",
         margin: "0.5rem",
-        maxWidth: "100%",
+        maxWidth: "90%",
+        borderRadius: "12px",
     }
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
-    marginBottom: "1.5rem",
+    marginBottom: "1.2rem",
     "& .MuiOutlinedInput-root": {
-        borderRadius: "14px",
-        background: "#f8fafc",
+        borderRadius: "12px",
+        background: "rgba(255, 255, 255, 0.8)",
         "& fieldset": {
-            borderColor: "#e2e8f0",
+            borderColor: "rgba(0, 0, 0, 0.15)",
         },
         "&:hover fieldset": {
             borderColor: theme.palette.primary.main,
         },
-        "&.Mui-focuse System: d fieldset": {
+        "&.Mui-focused fieldset": {
             borderColor: theme.palette.primary.main,
-        borderWidth: "2px26px",
+            borderWidth: "2px",
+        },
     },
     "& input": {
-        padding: "14px 14px",
+        padding: "12px 14px",
         paddingLeft: "40px",
-        fontSize: "1rem"
+        fontSize: "0.95rem"
     },
-},
     "& .MuiInputLabel-root": {
-    transform: "translate(40px, 14px) scale(1)",
-    color: "#64748b",
-    "&.Mui-focused": {
-        transform: "translate(14px, -9px) scale(0.75)",
-        color: theme.palette.primary.main,
+        transform: "translate(40px, 12px) scale(1)",
+        color: "#64748b",
+        "&.Mui-focused": {
+            transform: "translate(14px, -9px) scale(0.75)",
+            color: theme.palette.primary.main,
+        },
+        "&.MuiFormLabel-filled": {
+            transform: "translate(14px, -9px) scale(0.75)",
+        }
     },
-    "&.MuiFormLabel-filled": {
-        transform: "translate(14px, -9px) scale(0.75)",
-    }
-},
     "& .MuiInputAdornment-root": {
-    position: "absolute",
-    left: "12px"
-}
+        position: "absolute",
+        left: "12px"
+    },
+    "& .MuiInputAdornment-positionEnd": {
+        position: "absolute",
+        left: "auto",
+        right: "12px"
+    },
+    [theme.breakpoints.down('sm')]: {
+        marginBottom: "1rem",
+        "& input": {
+            padding: "10px 12px",
+            paddingLeft: "36px",
+            fontSize: "0.9rem"
+        },
+        "& .MuiInputLabel-root": {
+            transform: "translate(36px, 10px) scale(1)",
+            fontSize: "0.9rem",
+            "&.Mui-focused": {
+                transform: "translate(12px, -8px) scale(0.75)",
+            },
+            "&.MuiFormLabel-filled": {
+                transform: "translate(12px, -8px) scale(0.75)",
+            }
+        }
+    }
 }));
 
 const SocialButton = styled(Button)(({ theme }) => ({
     marginBottom: "1rem",
-    padding: "12px 20px",
-    borderRadius: "14px",
+    padding: "10px 18px",
+    borderRadius: "12px",
     textTransform: "none",
-    fontWeight: 700,
-    fontSize: "1.1rem",
+    fontWeight: 600,
+    fontSize: "1rem",
     transition: "all 0.3s ease",
-    background: "linear-gradient(45deg, #fff 0%, #f8fafc 100%)",
+    background: "rgba(255, 255, 255, 0.8)",
     color: "#1f2937",
-    border: "1px solid #e2e8f0",
+    border: "1px solid rgba(0, 0, 0, 0.1)",
     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
     "&:hover": {
-        background: "linear-gradient(45deg, #f1f5f9 0%, #e2e8f0 100%)",
+        background: "rgba(255, 255, 255, 0.95)",
         transform: "translateY(-2px)",
         boxShadow: "0 6px 16px rgba(0,0,0,0.12)"
     },
     "& .MuiButton-startIcon": {
-        marginRight: "12px",
+        marginRight: "10px",
+    },
+    [theme.breakpoints.down('sm')]: {
+        padding: "8px 16px",
+        fontSize: "0.9rem"
     }
 }));
 
 const SubmitButton = styled(Button)(({ theme }) => ({
-    background: "linear-gradient(45deg, #3b82f6 0%, #60a5fa 100%)",
+    background: "linear-gradient(45deg, #4a6cf7 0%, #6a8cff 100%)",
     color: "#ffffff",
-    fontWeight: 700,
-    padding: "14px 28px",
-    borderRadius: "14px",
-    fontSize: "1.1rem",
+    fontWeight: 600,
+    padding: "12px 24px",
+    borderRadius: "12px",
+    fontSize: "1rem",
     textTransform: "none",
-    boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
+    boxShadow: "0 4px 15px rgba(74, 108, 247, 0.3)",
     transition: "all 0.3s ease",
     "&:hover": {
-        transform: "translateY(-3px)",
-        boxShadow: "0 8px 20px rgba(59, 130, 246, 0.4)",
-        background: "linear-gradient(45deg, #2563eb 0%, #3b82f6 100%)"
+        transform: "translateY(-2px)",
+        boxShadow: "0 8px 20px rgba(74, 108, 247, 0.4)",
+        background: "linear-gradient(45deg, #3a5af5 0%, #5a7cff 100%)"
     },
     "&:disabled": {
-        background: "#e5e7eb",
+        background: "rgba(229, 231, 235, 0.7)",
         boxShadow: "none",
         transform: "none"
+    },
+    [theme.breakpoints.down('sm')]: {
+        padding: "10px 20px",
+        fontSize: "0.9rem"
     }
 }));
+
+const FeatureItem = ({ icon, text }) => (
+    <Box sx={{ display: "flex", alignItems: "center", mb: 1.2 }}>
+        <Box sx={{
+            background: "linear-gradient(45deg, #4a6cf7 0%, #6a8cff 100%)",
+            borderRadius: "50%",
+            width: 28,
+            height: 28,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: "10px",
+            color: "white"
+        }}>
+            {icon}
+        </Box>
+        <Typography variant="body2" sx={{ color: "#4b5563", fontWeight: 500, fontSize: { xs: "0.85rem", md: "0.95rem" } }}>
+            {text}
+        </Typography>
+    </Box>
+);
 
 const RegistrationForm = () => {
     const [formData, setFormData] = useState({
@@ -195,13 +249,13 @@ const RegistrationForm = () => {
                 await new Promise((resolve) => setTimeout(resolve, 2000));
                 setSnackbar({
                     open: true,
-                    message: "Inscription réussie!",
+                    message: "Inscription réussie! Vous pouvez maintenant discuter",
                     severity: "success"
                 });
             } catch (error) {
                 setSnackbar({
                     open: true,
-                    message: "Une erreur est survenue",
+                    message: "Une erreur est survenue lors de la création du compte",
                     severity: "error"
                 });
             } finally {
@@ -226,84 +280,180 @@ const RegistrationForm = () => {
 
     return (
         <Container
+            maxWidth={false}
+            disableGutters
             sx={{
                 minHeight: "100vh",
-                height: "100vh",
-                maxWidth: "100%", // Toujours 100% de la largeur
+                width: "100vw",
                 display: "flex",
-                alignItems: "center",
+                alignItems: { xs: "flex-start", md: "center" },
                 justifyContent: "center",
-                background: "#f1f5f9",
-                overflow: "hidden",
-                position: "relative",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                overflow: { xs: "auto", md: "hidden" },
+                overflowX: "hidden",
+                padding: { xs: "1rem", md: "0" },
                 "&:before": {
                     content: '""',
                     position: "absolute",
+                    top: 0,
+                    left: 0,
                     width: "100%",
                     height: "100%",
-                    background: "url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80) center/cover no-repeat",
-                    opacity: 0.05,
+                    background: "url(https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=2000&q=80) center/cover no-repeat",
+                    opacity: 0.1,
                     zIndex: 0
                 }
             }}
         >
-            <Box sx={{ position: "relative", zIndex: 1, width: "100%", height: "100%", display: "flex", alignItems: "center" }}>
-                <Grid container spacing={2} sx={{ height: "100%", alignItems: "center" }}>
-                    <Grid item xs={12} md={6} sx={{ height: { xs: "auto", md: "100%" }, display: "flex", alignItems: "center" }}>
+            <Box sx={{
+                position: "relative",
+                zIndex: 1,
+                width: "100%",
+                maxWidth: "1400px",
+                minHeight: { xs: "auto", md: "100vh" },
+                display: "flex",
+                alignItems: { xs: "flex-start", md: "center" },
+                justifyContent: "center",
+                py: { xs: 2, md: 0 }
+            }}>
+                <Grid container
+                    spacing={2}
+                    sx={{
+                        alignItems: { xs: "stretch", md: "center" },
+                        justifyContent: "center",
+                        flexDirection: { xs: "column", md: "row" },
+                    }}
+                >
+                    <Grid item
+                        xs={12}
+                        md={6}
+                        sx={{
+                            display: "flex",
+                            alignItems: { xs: "flex-start", md: "center" },
+                            justifyContent: "center",
+                            padding: { xs: "0.5rem", md: "0" },
+                            minHeight: { xs: "auto", md: "100%" }
+                        }}
+                    >
                         <Fade in timeout={1000}>
                             <Box sx={{
                                 textAlign: { xs: "center", md: "left" },
-                                color: "#1f2937",
-                                p: { xs: 2, md: 3 },
+                                color: "white",
+                                p: { xs: 1.5, md: 3 },
                                 width: "100%",
-                                maxHeight: { xs: "auto", md: "80vh" }
+                                maxWidth: "500px",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: { xs: "flex-start", md: "center" }
                             }}>
-                                <Typography variant="h2" sx={{
-                                    fontWeight: 800,
-                                    mb: 2,
-                                    fontSize: { xs: "2rem", md: "3rem" },
-                                    lineHeight: 1.2,
-                                    background: "linear-gradient(45deg, #3b82f6 0%, #60a5fa 100%)",
-                                    WebkitBackgroundClip: "text",
-                                    WebkitTextFillColor: "transparent"
-                                }}>
-                                    Bienvenue dans notre communauté
-                                </Typography>
-                                <Typography variant="h6" sx={{
-                                    color: "#4b5563",
-                                    mb: 3,
-                                    fontWeight: 400,
-                                    fontSize: { xs: "0.9rem", md: "1.1rem" }
-                                }}>
-                                    Créez votre compte pour accéder à des fonctionnalités exclusives.
-                                </Typography>
                                 <Box sx={{
-                                    backgroundImage: "url(https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    mb: 2,
+                                    justifyContent: { xs: "center", md: "flex-start" }
+                                }}>
+                                    <Box sx={{
+                                        background: "rgba(255, 255, 255, 0.2)",
+                                        backdropFilter: "blur(10px)",
+                                        borderRadius: "12px",
+                                        width: 48,
+                                        height: 48,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        marginRight: "10px",
+                                        color: "white",
+                                        fontSize: "1.5rem"
+                                    }}>
+                                        <FaComments />
+                                    </Box>
+                                    <Typography variant="h5" sx={{
+                                        fontWeight: 800,
+                                        color: "white",
+                                        textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                                    }}>
+                                        e-Tafa
+                                    </Typography>
+                                </Box>
+
+                                <Typography variant="h3" sx={{
+                                    fontWeight: 800,
+                                    mb: 1.5,
+                                    fontSize: { xs: "1.8rem", md: "2.5rem" },
+                                    lineHeight: 1.2,
+                                    color: "white",
+                                    textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                                }}>
+                                    Discutez instantanément avec le monde entier
+                                </Typography>
+                                <Typography variant="body1" sx={{
+                                    color: "rgba(255, 255, 255, 0.9)",
+                                    mb: 2,
+                                    fontWeight: 400,
+                                    fontSize: { xs: "0.85rem", md: "1rem" }
+                                }}>
+                                    Rejoignez notre communauté de messagerie en temps réel avec traduction automatique.
+                                </Typography>
+
+                                <Box sx={{ mb: 2 }}>
+                                    <FeatureItem
+                                        icon={<FaPaperPlane />}
+                                        text="Messages instantanés avec traduction en temps réel"
+                                    />
+                                    <FeatureItem
+                                        icon={<FaUser />}
+                                        text="Communiquez avec des personnes du monde entier"
+                                    />
+                                    <FeatureItem
+                                        icon={<FaLock />}
+                                        text="Conversations sécurisées et chiffrées"
+                                    />
+                                </Box>
+
+                                <Box sx={{
+                                    flexGrow: 1,
+                                    backgroundImage: "url(https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80)",
                                     backgroundSize: "cover",
                                     backgroundPosition: "center",
-                                    height: { xs: 150, md: 300 },
+                                    minHeight: { xs: "150px", md: "200px" },
                                     width: "100%",
-                                    maxWidth: { md: 400 },
-                                    borderRadius: "20px",
-                                    boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+                                    borderRadius: "16px",
+                                    boxShadow: "0 6px 24px rgba(0,0,0,0.1)",
                                     transition: "transform 0.4s ease",
                                     "&:hover": {
-                                        transform: "scale(1.02)"
+                                        transform: { md: "scale(1.02)" }
                                     }
                                 }} />
                             </Box>
                         </Fade>
                     </Grid>
-                    <Grid item xs={12} md={6} sx={{ height: { xs: "auto", md: "100%" }, display: "flex", alignItems: "center" }}>
+                    <Grid item
+                        xs={12}
+                        md={6}
+                        sx={{
+                            display: "flex",
+                            alignItems: { xs: "flex-start", md: "center" },
+                            justifyContent: "center",
+                            padding: { xs: "0.5rem", md: "0" }
+                        }}
+                    >
                         <Fade in timeout={1200}>
-                            <StyledCard sx={{ width: "100%", maxHeight: { xs: "auto", md: "80vh" }, overflow: "hidden" }}>
-                                <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-                                    <Typography variant="h4" align="center" gutterBottom sx={{
+                            <StyledCard sx={{
+                                width: "100%",
+                                maxWidth: { xs: "100%", md: "500px" },
+                            }}>
+                                <CardContent sx={{ p: { xs: 1.5, md: 3 } }}>
+                                    <Typography variant="h5" align="center" gutterBottom sx={{
                                         fontWeight: 700,
                                         color: "#1f2937",
-                                        mb: 3,
-                                        fontSize: { xs: "1.5rem", md: "2rem" }
+                                        mb: 2,
+                                        fontSize: { xs: "1.3rem", md: "1.8rem" },
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        gap: "8px"
                                     }}>
+                                        <FaComments style={{ color: "#4a6cf7" }} />
                                         Créer un compte
                                     </Typography>
 
@@ -409,17 +559,18 @@ const RegistrationForm = () => {
                                                     color="primary"
                                                     sx={{
                                                         '&.Mui-checked': {
-                                                            color: "#3b82f6"
-                                                        }
+                                                            color: "#4a6cf7"
+                                                        },
+                                                        transform: { xs: "scale(0.9)", md: "scale(1)" }
                                                     }}
                                                 />
                                             }
                                             label={
-                                                <Typography variant="body2" sx={{ color: "#4b5563" }}>
-                                                    J'accepte les <Box component="span" sx={{ color: "#3b82f6", fontWeight: 600, cursor: "pointer" }}>conditions d'utilisation</Box>
+                                                <Typography variant="body2" sx={{ color: "#4b5563", fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
+                                                    J'accepte les <Box component="span" sx={{ color: "#4a6cf7", fontWeight: 600, cursor: "pointer" }}>conditions d'utilisation</Box>
                                                 </Typography>
                                             }
-                                            sx={{ mb: 2 }}
+                                            sx={{ mb: 1.5 }}
                                         />
 
                                         <SubmitButton
@@ -428,15 +579,15 @@ const RegistrationForm = () => {
                                             disabled={!isFormValid() || loading}
                                         >
                                             {loading ? (
-                                                <CircularProgress size={24} color="inherit" />
+                                                <CircularProgress size={20} color="inherit" />
                                             ) : (
-                                                "S'inscrire"
+                                                "Commencer à discuter"
                                             )}
                                         </SubmitButton>
 
-                                        <Box sx={{ display: "flex", alignItems: "center", my: 2 }}>
+                                        <Box sx={{ display: "flex", alignItems: "center", my: 1.5 }}>
                                             <Divider sx={{ flexGrow: 1, borderColor: "#e2e8f0" }} />
-                                            <Typography variant="body2" sx={{ px: 3, color: "#64748b", fontWeight: 500 }}>
+                                            <Typography variant="body2" sx={{ px: 2, color: "#64748b", fontWeight: 500, fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
                                                 Ou continuer avec
                                             </Typography>
                                             <Divider sx={{ flexGrow: 1, borderColor: "#e2e8f0" }} />
@@ -450,9 +601,9 @@ const RegistrationForm = () => {
                                             Se connecter avec Google
                                         </SocialButton>
 
-                                        <Typography variant="body2" align="center" sx={{ mt: 2, color: "#64748b" }}>
+                                        <Typography variant="body2" align="center" sx={{ mt: 1.5, color: "#64748b", fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
                                             Vous avez déjà un compte ?
-                                            <Box component="span" sx={{ color: "#3b82f6", fontWeight: 600, ml: 1, cursor: "pointer" }}>
+                                            <Box component="span" sx={{ color: "#4a6cf7", fontWeight: 600, ml: 1, cursor: "pointer" }}>
                                                 Se connecter
                                             </Box>
                                         </Typography>
@@ -476,10 +627,11 @@ const RegistrationForm = () => {
                         severity={snackbar.severity}
                         sx={{
                             width: "100%",
-                            maxWidth: { xs: "90vw", md: "500px" },
-                            borderRadius: "12px",
+                            maxWidth: { xs: "85vw", md: "500px" },
+                            borderRadius: "10px",
                             boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-                            bgcolor: snackbar.severity === 'success' ? '#ecfed7' : '#fee2e7'
+                            bgcolor: snackbar.severity === 'success' ? '#ecfed7' : '#fee2e7',
+                            fontSize: { xs: "0.85rem", md: "0.9rem" }
                         }}
                     >
                         {snackbar.message}
