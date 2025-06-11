@@ -179,7 +179,7 @@ const FeatureItem = ({ icon, text }) => (
     </Box>
 );
 
-const RegistrationForm = () => {
+const App = () => {
     const [formData, setFormData] = useState({
         username: "",
         email: "",
@@ -844,4 +844,4 @@ const RegistrationForm = () => {
     );
 };
 
-export default RegistrationForm;
+export default App;
