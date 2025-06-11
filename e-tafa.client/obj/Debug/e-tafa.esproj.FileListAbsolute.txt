@@ -1,1 +1,2 @@
 C:\Users\Ny Avo Fisandratana\Projet\e-tafa\e-tafa\obj\Debug\e-tafa.esproj.CoreCompileInputs.cache
+C:\Users\Ny Avo Fisandratana\Projet\e-tafa\e-tafa\e-tafa.client\obj\Debug\e-tafa.esproj.CoreCompileInputs.cache
