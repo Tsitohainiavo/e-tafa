@@ -18,7 +18,8 @@ import {
     styled,
     Grid,
     Divider,
-    Fade
+    Fade,
+    Slide
 } from "@mui/material";
 import { FaEye, FaEyeSlash, FaGoogle, FaUser, FaEnvelope, FaLock, FaComments, FaPaperPlane } from "react-icons/fa";
 
@@ -186,12 +187,19 @@ const RegistrationForm = () => {
         confirmPassword: ""
     });
 
+    const [loginData, setLoginData] = useState({
+        email: "",
+        password: ""
+    });
+
     const [errors, setErrors] = useState({});
+    const [loginErrors, setLoginErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+    const [isLogin, setIsLogin] = useState(false);
 
     const validateUsername = (username) => {
         return username.length >= 3 && /^[a-zA-Z0-9]+$/.test(username);
@@ -209,6 +217,12 @@ const RegistrationForm = () => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
         validateField(name, value);
+    };
+
+    const handleLoginChange = (e) => {
+        const { name, value } = e.target;
+        setLoginData({ ...loginData, [name]: value });
+        validateLoginField(name, value);
     };
 
     const validateField = (name, value) => {
@@ -241,6 +255,27 @@ const RegistrationForm = () => {
         setErrors(newErrors);
     };
 
+    const validateLoginField = (name, value) => {
+        const newErrors = { ...loginErrors };
+
+        switch (name) {
+            case "email":
+                newErrors.email = !validateEmail(value)
+                    ? "Veuillez entrer une adresse email valide"
+                    : "";
+                break;
+            case "password":
+                newErrors.password = !validatePassword(value)
+                    ? "Mot de passe invalide"
+                    : "";
+                break;
+            default:
+                break;
+        }
+
+        setLoginErrors(newErrors);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (Object.values(errors).every((error) => !error) && termsAccepted) {
@@ -264,6 +299,29 @@ const RegistrationForm = () => {
         }
     };
 
+    const handleLoginSubmit = async (e) => {
+        e.preventDefault();
+        if (Object.values(loginErrors).every((error) => !error)) {
+            setLoading(true);
+            try {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                setSnackbar({
+                    open: true,
+                    message: "Connexion réussie! Bienvenue",
+                    severity: "success"
+                });
+            } catch (error) {
+                setSnackbar({
+                    open: true,
+                    message: "Email ou mot de passe incorrect",
+                    severity: "error"
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
     const handleGoogleSignIn = () => {
         console.log("Google Sign-In clicked");
     };
@@ -276,6 +334,17 @@ const RegistrationForm = () => {
             formData.password === formData.confirmPassword &&
             termsAccepted
         );
+    };
+
+    const isLoginFormValid = () => {
+        return (
+            validateEmail(loginData.email) &&
+            validatePassword(loginData.password)
+        );
+    };
+
+    const toggleAuthMode = () => {
+        setIsLogin(!isLogin);
     };
 
     return (
@@ -321,7 +390,8 @@ const RegistrationForm = () => {
                     sx={{
                         alignItems: { xs: "stretch", md: "center" },
                         justifyContent: "center",
-                        flexDirection: { xs: "column", md: "row" },
+                        flexDirection: { xs: "column", md: isLogin ? "row-reverse" : "row" },
+                        transition: "all 0.5s ease"
                     }}
                 >
                     <Grid item
@@ -335,7 +405,7 @@ const RegistrationForm = () => {
                             minHeight: { xs: "auto", md: "100%" }
                         }}
                     >
-                        <Fade in timeout={1000}>
+                        <Fade in timeout={500}>
                             <Box sx={{
                                 textAlign: { xs: "center", md: "left" },
                                 color: "white",
@@ -384,7 +454,9 @@ const RegistrationForm = () => {
                                     color: "white",
                                     textShadow: "0 2px 4px rgba(0,0,0,0.1)"
                                 }}>
-                                    Discutez instantanément avec le monde entier
+                                    {isLogin
+                                        ? "Reconnectez-vous à votre communauté"
+                                        : "Discutez instantanément avec le monde entier"}
                                 </Typography>
                                 <Typography variant="body1" sx={{
                                     color: "rgba(255, 255, 255, 0.9)",
@@ -392,7 +464,9 @@ const RegistrationForm = () => {
                                     fontWeight: 400,
                                     fontSize: { xs: "0.85rem", md: "1rem" }
                                 }}>
-                                    Rejoignez notre communauté de messagerie en temps réel avec traduction automatique.
+                                    {isLogin
+                                        ? "Retrouvez vos conversations et continuez vos échanges sans frontières"
+                                        : "Rejoignez notre communauté de messagerie en temps réel avec traduction automatique."}
                                 </Typography>
 
                                 <Box sx={{ mb: 2 }}>
@@ -412,7 +486,9 @@ const RegistrationForm = () => {
 
                                 <Box sx={{
                                     flexGrow: 1,
-                                    backgroundImage: "url(https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80)",
+                                    backgroundImage: `url(${isLogin
+                                        ? "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80"
+                                        : "https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80"})`,
                                     backgroundSize: "cover",
                                     backgroundPosition: "center",
                                     minHeight: { xs: "150px", md: "200px" },
@@ -437,180 +513,306 @@ const RegistrationForm = () => {
                             padding: { xs: "0.5rem", md: "0" }
                         }}
                     >
-                        <Fade in timeout={1200}>
+                        <Slide direction={isLogin ? "right" : "left"} in mountOnEnter unmountOnExit timeout={300}>
                             <StyledCard sx={{
                                 width: "100%",
                                 maxWidth: { xs: "100%", md: "500px" },
                             }}>
                                 <CardContent sx={{ p: { xs: 1.5, md: 3 } }}>
-                                    <Typography variant="h5" align="center" gutterBottom sx={{
-                                        fontWeight: 700,
-                                        color: "#1f2937",
-                                        mb: 2,
-                                        fontSize: { xs: "1.3rem", md: "1.8rem" },
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        gap: "8px"
-                                    }}>
-                                        <FaComments style={{ color: "#4a6cf7" }} />
-                                        Créer un compte
-                                    </Typography>
+                                    {!isLogin ? (
+                                        <>
+                                            <Typography variant="h5" align="center" gutterBottom sx={{
+                                                fontWeight: 700,
+                                                color: "#1f2937",
+                                                mb: 2,
+                                                fontSize: { xs: "1.3rem", md: "1.8rem" },
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                gap: "8px"
+                                            }}>
+                                                <FaComments style={{ color: "#4a6cf7" }} />
+                                                Créer un compte
+                                            </Typography>
 
-                                    <form onSubmit={handleSubmit}>
-                                        <StyledTextField
-                                            fullWidth
-                                            label="Nom d'utilisateur"
-                                            name="username"
-                                            value={formData.username}
-                                            onChange={handleChange}
-                                            error={!!errors.username}
-                                            helperText={errors.username}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <FaUser style={{ color: "#64748b" }} />
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        />
-
-                                        <StyledTextField
-                                            fullWidth
-                                            label="Email"
-                                            name="email"
-                                            type="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            error={!!errors.email}
-                                            helperText={errors.email}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <FaEnvelope style={{ color: "#64748b" }} />
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        />
-
-                                        <StyledTextField
-                                            fullWidth
-                                            label="Mot de passe"
-                                            name="password"
-                                            type={showPassword ? "text" : "password"}
-                                            value={formData.password}
-                                            onChange={handleChange}
-                                            error={!!errors.password}
-                                            helperText={errors.password}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <FaLock style={{ color: "#64748b" }} />
-                                                    </InputAdornment>
-                                                ),
-                                                endAdornment: (
-                                                    <InputAdornment position="end">
-                                                        <IconButton
-                                                            onClick={() => setShowPassword(!showPassword)}
-                                                            edge="end"
-                                                            size="small"
-                                                        >
-                                                            {showPassword ? <FaEyeSlash style={{ color: "#64748b" }} /> : <FaEye style={{ color: "#64748b" }} />}
-                                                        </IconButton>
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        />
-
-                                        <StyledTextField
-                                            fullWidth
-                                            label="Confirmer le mot de passe"
-                                            name="confirmPassword"
-                                            type={showConfirmPassword ? "text" : "password"}
-                                            value={formData.confirmPassword}
-                                            onChange={handleChange}
-                                            error={!!errors.confirmPassword}
-                                            helperText={errors.confirmPassword}
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <FaLock style={{ color: "#64748b" }} />
-                                                    </InputAdornment>
-                                                ),
-                                                endAdornment: (
-                                                    <InputAdornment position="end">
-                                                        <IconButton
-                                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                            edge="end"
-                                                            size="small"
-                                                        >
-                                                            {showConfirmPassword ? <FaEyeSlash style={{ color: "#64748b" }} /> : <FaEye style={{ color: "#64748b" }} />}
-                                                        </IconButton>
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        />
-
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={termsAccepted}
-                                                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                                                    color="primary"
-                                                    sx={{
-                                                        '&.Mui-checked': {
-                                                            color: "#4a6cf7"
-                                                        },
-                                                        transform: { xs: "scale(0.9)", md: "scale(1)" }
+                                            <form onSubmit={handleSubmit}>
+                                                <StyledTextField
+                                                    fullWidth
+                                                    label="Nom d'utilisateur"
+                                                    name="username"
+                                                    value={formData.username}
+                                                    onChange={handleChange}
+                                                    error={!!errors.username}
+                                                    helperText={errors.username}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <FaUser style={{ color: "#64748b" }} />
+                                                            </InputAdornment>
+                                                        )
                                                     }}
                                                 />
-                                            }
-                                            label={
-                                                <Typography variant="body2" sx={{ color: "#4b5563", fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
-                                                    J'accepte les <Box component="span" sx={{ color: "#4a6cf7", fontWeight: 600, cursor: "pointer" }}>conditions d'utilisation</Box>
+
+                                                <StyledTextField
+                                                    fullWidth
+                                                    label="Email"
+                                                    name="email"
+                                                    type="email"
+                                                    value={formData.email}
+                                                    onChange={handleChange}
+                                                    error={!!errors.email}
+                                                    helperText={errors.email}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <FaEnvelope style={{ color: "#64748b" }} />
+                                                            </InputAdornment>
+                                                        )
+                                                    }}
+                                                />
+
+                                                <StyledTextField
+                                                    fullWidth
+                                                    label="Mot de passe"
+                                                    name="password"
+                                                    type={showPassword ? "text" : "password"}
+                                                    value={formData.password}
+                                                    onChange={handleChange}
+                                                    error={!!errors.password}
+                                                    helperText={errors.password}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <FaLock style={{ color: "#64748b" }} />
+                                                            </InputAdornment>
+                                                        ),
+                                                        endAdornment: (
+                                                            <InputAdornment position="end">
+                                                                <IconButton
+                                                                    onClick={() => setShowPassword(!showPassword)}
+                                                                    edge="end"
+                                                                    size="small"
+                                                                >
+                                                                    {showPassword ? <FaEyeSlash style={{ color: "#64748b" }} /> : <FaEye style={{ color: "#64748b" }} />}
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        )
+                                                    }}
+                                                />
+
+                                                <StyledTextField
+                                                    fullWidth
+                                                    label="Confirmer le mot de passe"
+                                                    name="confirmPassword"
+                                                    type={showConfirmPassword ? "text" : "password"}
+                                                    value={formData.confirmPassword}
+                                                    onChange={handleChange}
+                                                    error={!!errors.confirmPassword}
+                                                    helperText={errors.confirmPassword}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <FaLock style={{ color: "#64748b" }} />
+                                                            </InputAdornment>
+                                                        ),
+                                                        endAdornment: (
+                                                            <InputAdornment position="end">
+                                                                <IconButton
+                                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                                    edge="end"
+                                                                    size="small"
+                                                                >
+                                                                    {showConfirmPassword ? <FaEyeSlash style={{ color: "#64748b" }} /> : <FaEye style={{ color: "#64748b" }} />}
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        )
+                                                    }}
+                                                />
+
+                                                <FormControlLabel
+                                                    control={
+                                                        <Checkbox
+                                                            checked={termsAccepted}
+                                                            onChange={(e) => setTermsAccepted(e.target.checked)}
+                                                            color="primary"
+                                                            sx={{
+                                                                '&.Mui-checked': {
+                                                                    color: "#4a6cf7"
+                                                                },
+                                                                transform: { xs: "scale(0.9)", md: "scale(1)" }
+                                                            }}
+                                                        />
+                                                    }
+                                                    label={
+                                                        <Typography variant="body2" sx={{ color: "#4b5563", fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
+                                                            J'accepte les <Box component="span" sx={{ color: "#4a6cf7", fontWeight: 600, cursor: "pointer" }}>conditions d'utilisation</Box>
+                                                        </Typography>
+                                                    }
+                                                    sx={{ mb: 1.5 }}
+                                                />
+
+                                                <SubmitButton
+                                                    fullWidth
+                                                    type="submit"
+                                                    disabled={!isFormValid() || loading}
+                                                >
+                                                    {loading ? (
+                                                        <CircularProgress size={20} color="inherit" />
+                                                    ) : (
+                                                        "Commencer à discuter"
+                                                    )}
+                                                </SubmitButton>
+
+                                                <Box sx={{ display: "flex", alignItems: "center", my: 1.5 }}>
+                                                    <Divider sx={{ flexGrow: 1, borderColor: "#e2e8f0" }} />
+                                                    <Typography variant="body2" sx={{ px: 2, color: "#64748b", fontWeight: 500, fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
+                                                        Ou continuer avec
+                                                    </Typography>
+                                                    <Divider sx={{ flexGrow: 1, borderColor: "#e2e8f0" }} />
+                                                </Box>
+
+                                                <SocialButton
+                                                    startIcon={<FaGoogle />}
+                                                    fullWidth
+                                                    onClick={handleGoogleSignIn}
+                                                >
+                                                    Se connecter avec Google
+                                                </SocialButton>
+
+                                                <Typography variant="body2" align="center" sx={{ mt: 1.5, color: "#64748b", fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
+                                                    Vous avez déjà un compte ?
+                                                    <Box
+                                                        component="span"
+                                                        sx={{ color: "#4a6cf7", fontWeight: 600, ml: 1, cursor: "pointer" }}
+                                                        onClick={toggleAuthMode}
+                                                    >
+                                                        Se connecter
+                                                    </Box>
                                                 </Typography>
-                                            }
-                                            sx={{ mb: 1.5 }}
-                                        />
-
-                                        <SubmitButton
-                                            fullWidth
-                                            type="submit"
-                                            disabled={!isFormValid() || loading}
-                                        >
-                                            {loading ? (
-                                                <CircularProgress size={20} color="inherit" />
-                                            ) : (
-                                                "Commencer à discuter"
-                                            )}
-                                        </SubmitButton>
-
-                                        <Box sx={{ display: "flex", alignItems: "center", my: 1.5 }}>
-                                            <Divider sx={{ flexGrow: 1, borderColor: "#e2e8f0" }} />
-                                            <Typography variant="body2" sx={{ px: 2, color: "#64748b", fontWeight: 500, fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
-                                                Ou continuer avec
-                                            </Typography>
-                                            <Divider sx={{ flexGrow: 1, borderColor: "#e2e8f0" }} />
-                                        </Box>
-
-                                        <SocialButton
-                                            startIcon={<FaGoogle />}
-                                            fullWidth
-                                            onClick={handleGoogleSignIn}
-                                        >
-                                            Se connecter avec Google
-                                        </SocialButton>
-
-                                        <Typography variant="body2" align="center" sx={{ mt: 1.5, color: "#64748b", fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
-                                            Vous avez déjà un compte ?
-                                            <Box component="span" sx={{ color: "#4a6cf7", fontWeight: 600, ml: 1, cursor: "pointer" }}>
+                                            </form>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Typography variant="h5" align="center" gutterBottom sx={{
+                                                fontWeight: 700,
+                                                color: "#1f2937",
+                                                mb: 2,
+                                                fontSize: { xs: "1.3rem", md: "1.8rem" },
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                gap: "8px"
+                                            }}>
+                                                <FaComments style={{ color: "#4a6cf7" }} />
                                                 Se connecter
-                                            </Box>
-                                        </Typography>
-                                    </form>
+                                            </Typography>
+
+                                            <form onSubmit={handleLoginSubmit}>
+                                                <StyledTextField
+                                                    fullWidth
+                                                    label="Email"
+                                                    name="email"
+                                                    type="email"
+                                                    value={loginData.email}
+                                                    onChange={handleLoginChange}
+                                                    error={!!loginErrors.email}
+                                                    helperText={loginErrors.email}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <FaEnvelope style={{ color: "#64748b" }} />
+                                                            </InputAdornment>
+                                                        )
+                                                    }}
+                                                />
+
+                                                <StyledTextField
+                                                    fullWidth
+                                                    label="Mot de passe"
+                                                    name="password"
+                                                    type={showPassword ? "text" : "password"}
+                                                    value={loginData.password}
+                                                    onChange={handleLoginChange}
+                                                    error={!!loginErrors.password}
+                                                    helperText={loginErrors.password}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <FaLock style={{ color: "#64748b" }} />
+                                                            </InputAdornment>
+                                                        ),
+                                                        endAdornment: (
+                                                            <InputAdornment position="end">
+                                                                <IconButton
+                                                                    onClick={() => setShowPassword(!showPassword)}
+                                                                    edge="end"
+                                                                    size="small"
+                                                                >
+                                                                    {showPassword ? <FaEyeSlash style={{ color: "#64748b" }} /> : <FaEye style={{ color: "#64748b" }} />}
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        )
+                                                    }}
+                                                />
+
+                                                <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1.5 }}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            color: "#4a6cf7",
+                                                            fontWeight: 600,
+                                                            cursor: "pointer",
+                                                            fontSize: { xs: "0.85rem", md: "0.9rem" }
+                                                        }}
+                                                    >
+                                                        Mot de passe oublié ?
+                                                    </Typography>
+                                                </Box>
+
+                                                <SubmitButton
+                                                    fullWidth
+                                                    type="submit"
+                                                    disabled={!isLoginFormValid() || loading}
+                                                >
+                                                    {loading ? (
+                                                        <CircularProgress size={20} color="inherit" />
+                                                    ) : (
+                                                        "Se connecter"
+                                                    )}
+                                                </SubmitButton>
+
+                                                <Box sx={{ display: "flex", alignItems: "center", my: 1.5 }}>
+                                                    <Divider sx={{ flexGrow: 1, borderColor: "#e2e8f0" }} />
+                                                    <Typography variant="body2" sx={{ px: 2, color: "#64748b", fontWeight: 500, fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
+                                                        Ou continuer avec
+                                                    </Typography>
+                                                    <Divider sx={{ flexGrow: 1, borderColor: "#e2e8f0" }} />
+                                                </Box>
+
+                                                <SocialButton
+                                                    startIcon={<FaGoogle />}
+                                                    fullWidth
+                                                    onClick={handleGoogleSignIn}
+                                                >
+                                                    Se connecter avec Google
+                                                </SocialButton>
+
+                                                <Typography variant="body2" align="center" sx={{ mt: 1.5, color: "#64748b", fontSize: { xs: "0.85rem", md: "0.9rem" } }}>
+                                                    Vous n'avez pas de compte ?
+                                                    <Box
+                                                        component="span"
+                                                        sx={{ color: "#4a6cf7", fontWeight: 600, ml: 1, cursor: "pointer" }}
+                                                        onClick={toggleAuthMode}
+                                                    >
+                                                        S'inscrire
+                                                    </Box>
+                                                </Typography>
+                                            </form>
+                                        </>
+                                    )}
                                 </CardContent>
                             </StyledCard>
-                        </Fade>
+                        </Slide>
                     </Grid>
                 </Grid>
             </Box>
