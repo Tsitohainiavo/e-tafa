@@ -3,25 +3,27 @@ import React, { useState } from 'react';
 import {
     AppBar, Toolbar, IconButton, TextField,
     List, ListItem, ListItemAvatar, Avatar,
-    ListItemText, Divider, Badge, Box,
-    Button, Select, MenuItem, InputAdornment,
-    Paper, useMediaQuery, ThemeProvider, createTheme, Typography
+    ListItemText, Badge, Box, Button,
+    Select, MenuItem, InputAdornment, Paper,
+    useMediaQuery, ThemeProvider, createTheme,
+    Typography, Drawer, useTheme
 } from '@mui/material';
 import {
     Search, Send, Language, ArrowBack,
     Circle as CircleOnline, CheckCircle,
     Chat, People, Call, Settings,
-    MoreVert, EmojiEmotions, AttachFile
+    MoreVert, EmojiEmotions, AttachFile,
+    Menu as MenuIcon
 } from '@mui/icons-material';
 
 // WhatsApp-inspired theme
 const theme = createTheme({
     palette: {
-        primary: { main: '#128C7E' }, // WhatsApp green
-        secondary: { main: '#25D366' }, // WhatsApp secondary green
+        primary: { main: '#128C7E' },
+        secondary: { main: '#25D366' },
         background: {
-            default: '#F0F2F5', // Light background
-            paper: '#FFFFFF' // Cards background
+            default: '#F0F2F5',
+            paper: '#FFFFFF'
         },
         text: {
             primary: '#3B4A54',
@@ -38,8 +40,8 @@ const theme = createTheme({
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundColor: '#F0F2F5',
-                    color: '#000000',
+                    backgroundColor: '#128C7E',
+                    color: '#FFFFFF',
                     boxShadow: 'none'
                 }
             }
@@ -48,8 +50,7 @@ const theme = createTheme({
             styleOverrides: {
                 root: {
                     borderRadius: 0,
-                    boxShadow: 'none',
-                    borderRight: '1px solid #E0E0E0'
+                    boxShadow: 'none'
                 }
             }
         },
@@ -59,6 +60,15 @@ const theme = createTheme({
                     '&:hover': {
                         backgroundColor: '#F5F5F5'
                     }
+                }
+            }
+        },
+        MuiDrawer: {
+            styleOverrides: {
+                paper: {
+                    width: '70px',
+                    backgroundColor: '#F0F2F5',
+                    borderRight: '1px solid #E0E0E0'
                 }
             }
         }
@@ -71,7 +81,12 @@ const ChatPage = () => {
     const [language, setLanguage] = useState('fr');
     const [search, setSearch] = useState('');
     const [activeTab, setActiveTab] = useState('chats');
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [drawerOpen, setDrawerOpen] = useState(false);
+
+    const muiTheme = useTheme();
+    const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
+    const isTablet = useMediaQuery(muiTheme.breakpoints.between('sm', 'md'));
+    const isLargeScreen = useMediaQuery(muiTheme.breakpoints.up('md'));
 
     // Simulated data
     const conversations = [
@@ -114,7 +129,6 @@ const ChatPage = () => {
 
     const handleSend = () => {
         if (message.trim() !== '') {
-            // Add message sending logic here
             setMessage('');
         }
     };
@@ -125,118 +139,124 @@ const ChatPage = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            width: 70,
-            bgcolor: '#F0F2F5',
             py: 2,
-            borderRight: '1px solid #E0E0E0'
+            height: '100%'
         }}>
-            <IconButton
-                sx={{
-                    mb: 3,
-                    mt: 1,
-                    backgroundColor: activeTab === 'chats' ? '#E0F0E7' : 'transparent',
-                    borderRadius: '50%',
-                    '&:hover': {
-                        backgroundColor: activeTab === 'chats' ? '#E0F0E7' : '#E5E5E5'
-                    }
-                }}
-                onClick={() => setActiveTab('chats')}
-            >
-                <Badge badgeContent={5} color="primary">
-                    <Chat sx={{ color: activeTab === 'chats' ? '#128C7E' : '#54656F', fontSize: 26 }} />
-                </Badge>
-            </IconButton>
-
-            <IconButton
-                sx={{
-                    mb: 3,
-                    backgroundColor: activeTab === 'contacts' ? '#E0F0E7' : 'transparent',
-                    borderRadius: '50%',
-                    '&:hover': {
-                        backgroundColor: activeTab === 'contacts' ? '#E0F0E7' : '#E5E5E5'
-                    }
-                }}
-                onClick={() => setActiveTab('contacts')}
-            >
-                <People sx={{ color: activeTab === 'contacts' ? '#128C7E' : '#54656F', fontSize: 26 }} />
-            </IconButton>
-
-            <IconButton
-                sx={{
-                    mb: 3,
-                    backgroundColor: activeTab === 'calls' ? '#E0F0E7' : 'transparent',
-                    borderRadius: '50%',
-                    '&:hover': {
-                        backgroundColor: activeTab === 'calls' ? '#E0F0E7' : '#E5E5E5'
-                    }
-                }}
-                onClick={() => setActiveTab('calls')}
-            >
-                <Call sx={{ color: activeTab === 'calls' ? '#128C7E' : '#54656F', fontSize: 26 }} />
-            </IconButton>
-
-            <IconButton
-                sx={{
-                    mb: 3,
-                    backgroundColor: activeTab === 'settings' ? '#E0F0E7' : 'transparent',
-                    borderRadius: '50%',
-                    '&:hover': {
-                        backgroundColor: activeTab === 'settings' ? '#E0F0E7' : '#E5E5E5'
-                    }
-                }}
-                onClick={() => setActiveTab('settings')}
-            >
-                <Settings sx={{ color: activeTab === 'settings' ? '#128C7E' : '#54656F', fontSize: 26 }} />
-            </IconButton>
+            {[
+                { tab: 'chats', icon: Chat, badge: 5 },
+                { tab: 'contacts', icon: People },
+                { tab: 'calls', icon: Call },
+                { tab: 'settings', icon: Settings }
+            ].map(({ tab, icon: Icon, badge }) => (
+                <IconButton
+                    key={tab}
+                    sx={{
+                        mb: 3,
+                        backgroundColor: activeTab === tab ? '#E0F0E7' : 'transparent',
+                        borderRadius: '50%',
+                        '&:hover': {
+                            backgroundColor: activeTab === tab ? '#E0F0E7' : '#E5E5E5'
+                        }
+                    }}
+                    onClick={() => {
+                        setActiveTab(tab);
+                        setDrawerOpen(false);
+                    }}
+                >
+                    {badge ? (
+                        <Badge badgeContent={badge} color="primary">
+                            <Icon sx={{ color: activeTab === tab ? '#128C7E' : '#54656F', fontSize: 26 }} />
+                        </Badge>
+                    ) : (
+                        <Icon sx={{ color: activeTab === tab ? '#128C7E' : '#54656F', fontSize: 26 }} />
+                    )}
+                </IconButton>
+            ))}
         </Box>
     );
 
     return (
         <ThemeProvider theme={theme}>
-            <Box sx={{ display: 'flex', height: '100vh', width:'100vw', bgcolor: 'background.default' }}>
-                {/* Sidebar Icons */}
-                {!isMobile && <SidebarIcons />}
+            <Box sx={{
+                display: 'flex',
+                height: '100vh',
+                width: '100%',
+                bgcolor: 'background.default',
+                overflowX: 'hidden'
+            }}>
+                {/* Mobile Drawer for Sidebar */}
+                {(isMobile || isTablet) && (
+                    <Drawer
+                        open={drawerOpen}
+                        onClose={() => setDrawerOpen(false)}
+                        variant="temporary"
+                    >
+                        <SidebarIcons />
+                    </Drawer>
+                )}
 
-                {/* Sidebar - Conversation List */}
-                <Paper sx={{
-                    width: isMobile ? '100%' : '30%',
-                    maxWidth: isMobile ? '100%' : 400,
-                    display: activeChat && isMobile ? 'none' : 'flex',
-                    flexDirection: 'column',
-                    borderRight: '1px solid #E0E0E0'
+                {/* Permanent Sidebar for Desktop/Tablet */}
+                <Box sx={{
+                    width: '70px',
+                    flexShrink: 0,
+                    bgcolor: '#F0F2F5',
+                    borderRight: '1px solid #E0E0E0',
+                    display: (isMobile || isTablet) && activeChat ? 'none' : 'block'
                 }}>
-                    <AppBar position="static" elevation={0}>
+                    <SidebarIcons />
+                </Box>
+
+                {/* Conversation List */}
+                <Paper sx={{
+                    width: {
+                        xs: activeChat ? '0' : '100%',
+                        sm: activeChat ? '0' : '320px',
+                        md: '360px'
+                    },
+                    display: {
+                        xs: activeChat ? 'none' : 'flex',
+                        sm: activeChat ? 'none' : 'flex',
+                        md: 'flex'
+                    },
+                    flexDirection: 'column',
+                    transition: 'width 0.3s',
+                    overflow: 'hidden',
+                    flexShrink: 0
+                }}>
+                    <AppBar position="static">
                         <Toolbar sx={{
-                            bgcolor: '#F0F2F5',
-                            px: 2,
-                            borderBottom: '1px solid #E0E0E0'
+                            px: { xs: 1, sm: 2 },
+                            minHeight: { xs: 48, sm: 56 }
                         }}>
-                            <Avatar
-                                sx={{
-                                    bgcolor: 'primary.main',
-                                    mr: 2,
-                                    width: 40,
-                                    height: 40
-                                }}
-                                src="/profile.jpg"
-                            />
+                            {(isMobile || isTablet) && (
+                                <IconButton onClick={() => setDrawerOpen(true)} sx={{ mr: 1, color: 'white' }}>
+                                    <MenuIcon />
+                                </IconButton>
+                            )}
+                            <Avatar sx={{
+                                bgcolor: 'secondary.main',
+                                mr: 2,
+                                width: { xs: 32, sm: 36 },
+                                height: { xs: 32, sm: 36 }
+                            }} src="/profile.jpg" />
                             <Typography variant="h6" sx={{
                                 flexGrow: 1,
-                                fontWeight: 600,
-                                fontSize: '1.1rem',
-                                color: '#3B4A54'
+                                fontSize: { xs: '1rem', sm: '1.1rem' }
                             }}>
                                 E-Tafa
                             </Typography>
                             <IconButton>
-                                <MoreVert sx={{ color: '#54656F' }} />
+                                <MoreVert sx={{ color: 'white' }} />
                             </IconButton>
                         </Toolbar>
-                        <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
+                        <Box sx={{
+                            p: { xs: 1, sm: 2 },
+                            bgcolor: 'background.paper'
+                        }}>
                             <TextField
                                 fullWidth
                                 size="small"
-                                placeholder="Rechercher une discussion ou un contact..."
+                                placeholder="Rechercher..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 InputProps={{
@@ -249,7 +269,8 @@ const ChatPage = () => {
                                         bgcolor: '#F0F2F5',
                                         borderRadius: '20px',
                                         height: 36,
-                                        fontSize: '0.9rem'
+                                        fontSize: '0.9rem',
+                                        pr: 1
                                     }
                                 }}
                             />
@@ -260,13 +281,8 @@ const ChatPage = () => {
                         overflowY: 'auto',
                         flex: 1,
                         bgcolor: 'background.paper',
-                        '&::-webkit-scrollbar': {
-                            width: '6px'
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            backgroundColor: '#C5C5C5',
-                            borderRadius: '3px'
-                        }
+                        '&::-webkit-scrollbar': { width: '6px' },
+                        '&::-webkit-scrollbar-thumb': { backgroundColor: '#C5C5C5', borderRadius: '3px' }
                     }}>
                         {filteredConversations.map((conv) => (
                             <ListItem
@@ -275,30 +291,27 @@ const ChatPage = () => {
                                 selected={activeChat === conv.id}
                                 onClick={() => setActiveChat(conv.id)}
                                 sx={{
-                                    py: 1.5,
-                                    px: 2,
-                                    borderBottom: '1px solid #F0F2F5'
+                                    py: 1,
+                                    px: { xs: 1, sm: 2 }
                                 }}
                             >
                                 <ListItemAvatar>
                                     <Badge
                                         overlap="circular"
                                         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                                        badgeContent={conv.online ? (
-                                            <CircleOnline
-                                                color="success"
-                                                sx={{ width: 14, height: 14, border: '2px solid white' }}
-                                            />
-                                        ) : null}
+                                        badgeContent={conv.online && (
+                                            <CircleOnline sx={{
+                                                width: { xs: 10, sm: 12 },
+                                                height: { xs: 10, sm: 12 },
+                                                border: '2px solid white'
+                                            }} color="success" />
+                                        )}
                                     >
-                                        <Avatar
-                                            sx={{
-                                                bgcolor: 'primary.main',
-                                                width: 50,
-                                                height: 50,
-                                                fontSize: '1.1rem'
-                                            }}
-                                        >
+                                        <Avatar sx={{
+                                            bgcolor: 'primary.main',
+                                            width: { xs: 40, sm: 45 },
+                                            height: { xs: 40, sm: 45 }
+                                        }}>
                                             {conv.name[0]}
                                         </Avatar>
                                     </Badge>
@@ -307,49 +320,45 @@ const ChatPage = () => {
                                     primary={
                                         <Typography sx={{
                                             fontWeight: 500,
+                                            fontSize: { xs: '0.9rem', sm: '0.95rem' },
                                             color: conv.unread > 0 ? '#000000' : '#3B4A54',
-                                            fontSize: '1rem'
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap'
                                         }}>
                                             {conv.name}
                                         </Typography>
                                     }
                                     secondary={
                                         <Typography sx={{
-                                            fontSize: '0.85rem',
-                                            whiteSpace: 'nowrap',
+                                            fontSize: { xs: '0.75rem', sm: '0.8rem' },
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
-                                            color: conv.unread > 0 ? '#000000' : '#667781'
+                                            whiteSpace: 'nowrap'
                                         }}>
                                             {conv.lastMsg}
                                         </Typography>
                                     }
-                                    sx={{ my: 0 }}
+                                    sx={{ my: 0, pr: 1 }}
                                 />
                                 <Box sx={{
-                                    textAlign: 'right',
-                                    minWidth: 60,
+                                    minWidth: { xs: 40, sm: 50 },
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    alignItems: 'flex-end'
+                                    alignItems: 'flex-end',
+                                    flexShrink: 0
                                 }}>
                                     <Typography variant="caption" sx={{
-                                        color: '#667781',
-                                        fontSize: '0.75rem'
+                                        fontSize: { xs: '0.65rem', sm: '0.75rem' }
                                     }}>
                                         {conv.time}
                                     </Typography>
                                     {conv.unread > 0 && (
                                         <Badge
                                             badgeContent={conv.unread}
-                                            color="primary"
                                             sx={{
                                                 mt: 0.5,
-                                                '& .MuiBadge-badge': {
-                                                    right: -5,
-                                                    top: 2,
-                                                    backgroundColor: '#25D366'
-                                                }
+                                                '& .MuiBadge-badge': { backgroundColor: '#25D366' }
                                             }}
                                         />
                                     )}
@@ -360,267 +369,290 @@ const ChatPage = () => {
                 </Paper>
 
                 {/* Main Chat Area */}
-                {activeChat ? (
-                    <Box sx={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        bgcolor: '#ECE5DD',
-                        backgroundImage: 'url(https://www.transparenttextures.com/patterns/axiom-pattern.png)',
-                        backgroundBlendMode: 'soft-light'
-                    }}>
-                        <AppBar position="static" elevation={0}>
-                            <Toolbar sx={{
-                                bgcolor: '#F0F2F5',
-                                px: 2,
-                                borderBottom: '1px solid #E0E0E0'
-                            }}>
-                                {isMobile && (
-                                    <IconButton onClick={() => setActiveChat(null)} sx={{ mr: 1 }}>
-                                        <ArrowBack sx={{ color: '#54656F' }} />
-                                    </IconButton>
-                                )}
-                                <Avatar sx={{
-                                    bgcolor: 'primary.main',
-                                    mr: 2,
-                                    width: 40,
-                                    height: 40
+                <Box sx={{
+                    flex: 1,
+                    display: {
+                        xs: activeChat ? 'flex' : 'none',
+                        sm: activeChat ? 'flex' : 'none',
+                        md: 'flex'
+                    },
+                    flexDirection: 'column',
+                    bgcolor: '#ECE5DD',
+                    backgroundImage: 'url(https://www.transparenttextures.com/patterns/axiom-pattern.png)',
+                    backgroundBlendMode: 'soft-light',
+                    width: {
+                        xs: activeChat ? '100%' : '0',
+                        sm: activeChat ? '100%' : '0',
+                        md: '100%'
+                    },
+                    transition: 'width 0.3s',
+                    overflowX: 'hidden'
+                }}>
+                    {activeChat ? (
+                        <>
+                            <AppBar position="static">
+                                <Toolbar sx={{
+                                    px: { xs: 1, sm: 2 },
+                                    minHeight: { xs: 48, sm: 56 }
                                 }}>
-                                    {conversations.find(c => c.id === activeChat)?.name[0] || users.find(u => u.id === activeChat)?.name[0]}
-                                </Avatar>
-                                <ListItemText
-                                    primary={
-                                        <Typography sx={{
-                                            fontWeight: 600,
-                                            fontSize: '1rem',
-                                            color: '#3B4A54'
-                                        }}>
-                                            {conversations.find(c => c.id === activeChat)?.name || users.find(u => u.id === activeChat)?.name}
-                                        </Typography>
-                                    }
-                                    secondary={
-                                        <Typography sx={{
-                                            fontSize: '0.8rem',
-                                            color: '#667781'
-                                        }}>
-                                            {conversations.find(c => c.id === activeChat)?.online || users.find(u => u.id === activeChat)?.online ?
-                                                "En ligne" : "Hors ligne"}
-                                        </Typography>
-                                    }
-                                />
-                                <IconButton sx={{ mr: 1 }}>
-                                    <Call sx={{ color: '#54656F', fontSize: 22 }} />
-                                </IconButton>
-                                <IconButton sx={{ mr: 1 }}>
-                                    <People sx={{ color: '#54656F', fontSize: 22 }} />
-                                </IconButton>
-                                <Select
-                                    value={language}
-                                    onChange={(e) => setLanguage(e.target.value)}
-                                    size="small"
-                                    sx={{
-                                        color: '#54656F',
-                                        '.MuiSvgIcon-root': { color: '#54656F' },
-                                        '& .MuiSelect-select': { py: 0.5, px: 1 },
-                                        ml: 1
-                                    }}
-                                >
-                                    <MenuItem value="fr">FR</MenuItem>
-                                    <MenuItem value="en">EN</MenuItem>
-                                    <MenuItem value="es">ES</MenuItem>
-                                    <MenuItem value="de">DE</MenuItem>
-                                </Select>
-                            </Toolbar>
-                        </AppBar>
+                                    {(isMobile || isTablet) && (
+                                        <IconButton onClick={() => setActiveChat(null)} sx={{ mr: 1, color: 'white' }}>
+                                            <ArrowBack />
+                                        </IconButton>
+                                    )}
+                                    <Avatar sx={{
+                                        bgcolor: 'secondary.main',
+                                        mr: 2,
+                                        width: { xs: 32, sm: 36 },
+                                        height: { xs: 32, sm: 36 }
+                                    }}>
+                                        {conversations.find(c => c.id === activeChat)?.name[0] || users.find(u => u.id === activeChat)?.name[0]}
+                                    </Avatar>
+                                    <ListItemText
+                                        primary={
+                                            <Typography sx={{
+                                                fontWeight: 600,
+                                                fontSize: { xs: '0.9rem', sm: '0.95rem' },
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                            }}>
+                                                {conversations.find(c => c.id === activeChat)?.name || users.find(u => u.id === activeChat)?.name}
+                                            </Typography>
+                                        }
+                                        secondary={
+                                            <Typography sx={{
+                                                fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                            }}>
+                                                {conversations.find(c => c.id === activeChat)?.online || users.find(u => u.id === activeChat)?.online ?
+                                                    "En ligne" : "Hors ligne"}
+                                            </Typography>
+                                        }
+                                        sx={{ flex: '1 1 auto', minWidth: 0 }}
+                                    />
+                                    <Box sx={{
+                                        display: 'flex',
+                                        gap: { xs: 0.5, sm: 1 },
+                                        flexShrink: 0
+                                    }}>
+                                        <IconButton size="small">
+                                            <Call sx={{ color: 'white', fontSize: { xs: 20, sm: 22 } }} />
+                                        </IconButton>
+                                        <IconButton size="small">
+                                            <People sx={{ color: 'white', fontSize: { xs: 20, sm: 22 } }} />
+                                        </IconButton>
+                                        <Select
+                                            value={language}
+                                            onChange={(e) => setLanguage(e.target.value)}
+                                            size="small"
+                                            sx={{
+                                                color: 'white',
+                                                '.MuiSvgIcon-root': { color: 'white' },
+                                                '& .MuiSelect-select': {
+                                                    py: 0.5,
+                                                    px: 1,
+                                                    fontSize: { xs: '0.8rem', sm: '0.9rem' }
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value="fr">FR</MenuItem>
+                                            <MenuItem value="en">EN</MenuItem>
+                                            <MenuItem value="es">ES</MenuItem>
+                                            <MenuItem value="de">DE</MenuItem>
+                                        </Select>
+                                    </Box>
+                                </Toolbar>
+                            </AppBar>
 
-                        {/* Messages */}
+                            {/* Messages */}
+                            <Box sx={{
+                                flex: 1,
+                                overflowY: 'auto',
+                                p: { xs: 1, sm: 2 },
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 1,
+                                '&::-webkit-scrollbar': { width: '6px' },
+                                '&::-webkit-scrollbar-thumb': { backgroundColor: '#C5C5C5', borderRadius: '3px' },
+                                overflowX: 'hidden'
+                            }}>
+                                {(messages[activeChat] || []).map((msg) => (
+                                    <Box
+                                        key={msg.id}
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: msg.sender === 'me' ? 'flex-end' : 'flex-start',
+                                            marginBottom: '8px',
+                                            maxWidth: { xs: '80%', sm: '70%' },
+                                            width: 'fit-content'
+                                        }}
+                                    >
+                                        <Paper sx={{
+                                            padding: { xs: '6px 10px', sm: '8px 12px' },
+                                            backgroundColor: msg.sender === 'me' ? '#DCF8C6' : 'background.paper',
+                                            borderRadius: msg.sender === 'me' ? '7.5px 0 7.5px 7.5px' : '0 7.5px 7.5px 7.5px',
+                                            boxShadow: '0 1px 0.5px rgba(0,0,0,0.13)',
+                                            maxWidth: '100%',
+                                            wordBreak: 'break-word'
+                                        }}>
+                                            <Typography sx={{
+                                                fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                                                lineHeight: 1.4
+                                            }}>
+                                                {language !== 'fr' && msg.translated ? msg.translated : msg.text}
+                                            </Typography>
+                                            <Box sx={{
+                                                display: 'flex',
+                                                justifyContent: 'flex-end',
+                                                marginTop: '4px',
+                                                alignItems: 'center'
+                                            }}>
+                                                <Typography variant="caption" sx={{
+                                                    fontSize: { xs: '0.65rem', sm: '0.7rem' }
+                                                }}>
+                                                    {msg.time}
+                                                </Typography>
+                                                {msg.sender === 'me' && (
+                                                    <CheckCircle sx={{
+                                                        marginLeft: '4px',
+                                                        color: '#3B4A54',
+                                                        fontSize: { xs: '0.8rem', sm: '0.9rem' }
+                                                    }} />
+                                                )}
+                                            </Box>
+                                        </Paper>
+                                    </Box>
+                                ))}
+                            </Box>
+
+                            {/* Message Input */}
+                            <Paper sx={{
+                                padding: { xs: '8px', sm: '16px' },
+                                backgroundColor: 'background.paper',
+                                borderTop: '1px solid #E0E0E0',
+                                overflowX: 'hidden'
+                            }}>
+                                <Box sx={{
+                                    display: 'flex',
+                                    gap: { xs: '4px', sm: '8px' },
+                                    alignItems: 'center',
+                                    backgroundColor: '#F0F2F5',
+                                    borderRadius: '20px',
+                                    padding: { xs: '4px 8px', sm: '4px 8px' },
+                                    maxWidth: '100%'
+                                }}>
+                                    <IconButton size="small">
+                                        <EmojiEmotions sx={{ color: '#54656F', fontSize: { xs: 20, sm: 22 } }} />
+                                    </IconButton>
+                                    <IconButton size="small">
+                                        <AttachFile sx={{
+                                            color: '#54656F',
+                                            transform: 'rotate(45deg)',
+                                            fontSize: { xs: 20, sm: 22 }
+                                        }} />
+                                    </IconButton>
+                                    <TextField
+                                        fullWidth
+                                        multiline
+                                        maxRows={4}
+                                        value={message}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                        placeholder="Écrire un message..."
+                                        variant="standard"
+                                        InputProps={{
+                                            disableUnderline: true,
+                                            sx: {
+                                                fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                                                padding: '4px',
+                                                paddingRight: '8px'
+                                            }
+                                        }}
+                                        onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                                        sx={{ flex: '1 1 auto' }}
+                                    />
+                                    <IconButton
+                                        color="primary"
+                                        onClick={handleSend}
+                                        disabled={!message.trim()}
+                                        sx={{
+                                            backgroundColor: 'primary.main',
+                                            color: 'white',
+                                            '&:hover': { backgroundColor: '#0C7D6F' },
+                                            width: { xs: '32px', sm: '36px' },
+                                            height: { xs: '32px', sm: '36px' }
+                                        }}
+                                    >
+                                        <Send sx={{ fontSize: { xs: 18, sm: 20 } }} />
+                                    </IconButton>
+                                </Box>
+                            </Paper>
+                        </>
+                    ) : (
                         <Box sx={{
                             flex: 1,
-                            overflowY: 'auto',
-                            p: 2,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            '&::-webkit-scrollbar': {
-                                width: '6px'
-                            },
-                            '&::-webkit-scrollbar-thumb': {
-                                backgroundColor: '#C5C5C5',
-                                borderRadius: '3px'
-                            }
-                        }}>
-                            {(messages[activeChat] || []).map((msg) => (
-                                <Box
-                                    key={msg.id}
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: msg.sender === 'me' ? 'flex-end' : 'flex-start',
-                                        mb: 2,
-                                        maxWidth: '85%',
-                                        alignSelf: msg.sender === 'me' ? 'flex-end' : 'flex-start'
-                                    }}
-                                >
-                                    <Paper sx={{
-                                        p: '8px 12px',
-                                        bgcolor: msg.sender === 'me' ? '#DCF8C6' : 'background.paper',
-                                        color: 'text.primary',
-                                        borderRadius: msg.sender === 'me' ?
-                                            '7.5px 0 7.5px 7.5px' : '0 7.5px 7.5px 7.5px',
-                                        boxShadow: '0 1px 0.5px rgba(0,0,0,0.13)',
-                                        position: 'relative'
-                                    }}>
-                                        <Typography variant="body1" sx={{
-                                            fontSize: '0.95rem',
-                                            lineHeight: 1.4
-                                        }}>
-                                            {language !== 'fr' && msg.translated ? msg.translated : msg.text}
-                                        </Typography>
-                                        <Box sx={{
-                                            display: 'flex',
-                                            justifyContent: 'flex-end',
-                                            mt: 0.5,
-                                            alignItems: 'center'
-                                        }}>
-                                            <Typography variant="caption" sx={{
-                                                fontSize: '0.7rem',
-                                                color: msg.sender === 'me' ? '#3B4A54' : '#667781'
-                                            }}>
-                                                {msg.time}
-                                            </Typography>
-                                            {msg.sender === 'me' && (
-                                                <CheckCircle
-                                                    fontSize="small"
-                                                    sx={{
-                                                        ml: 0.5,
-                                                        color: '#3B4A54',
-                                                        fontSize: '0.9rem'
-                                                    }}
-                                                />
-                                            )}
-                                        </Box>
-                                    </Paper>
-                                </Box>
-                            ))}
-                        </Box>
-
-                        {/* Message Input */}
-                        <Paper sx={{
-                            p: '8px 16px',
-                            bgcolor: 'background.paper',
-                            borderTop: '1px solid #E0E0E0',
-                            borderRadius: 0
+                            display: { xs: 'none', sm: 'none', md: 'flex' },
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%',
+                            overflowX: 'hidden'
                         }}>
                             <Box sx={{
-                                display: 'flex',
-                                gap: 1,
-                                alignItems: 'center',
-                                bgcolor: '#F0F2F5',
-                                borderRadius: 20,
-                                px: 1.5,
-                                py: 0.5
+                                textAlign: 'center',
+                                padding: { xs: '16px', sm: '32px' }
                             }}>
-                                <IconButton size="small">
-                                    <EmojiEmotions sx={{ color: '#54656F' }} />
-                                </IconButton>
-                                <IconButton size="small">
-                                    <AttachFile sx={{
-                                        color: '#54656F',
-                                        transform: 'rotate(45deg)'
+                                <Box sx={{
+                                    width: { xs: '120px', sm: '150px', md: '200px' },
+                                    height: { xs: '120px', sm: '150px', md: '200px' },
+                                    borderRadius: '50%',
+                                    backgroundColor: '#E0F0E7',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto',
+                                    marginBottom: '24px'
+                                }}>
+                                    <Chat sx={{
+                                        color: '#128C7E',
+                                        fontSize: { xs: 50, sm: 60, md: 80 },
+                                        opacity: 0.3
                                     }} />
-                                </IconButton>
-                                <TextField
-                                    fullWidth
-                                    multiline
-                                    maxRows={4}
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    placeholder="Écrire un message..."
-                                    variant="standard"
-                                    size="small"
-                                    onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                                    InputProps={{
-                                        disableUnderline: true,
-                                        sx: {
-                                            fontSize: '0.95rem',
-                                            py: 0.5
-                                        }
-                                    }}
-                                />
-                                <IconButton
-                                    color="primary"
-                                    onClick={handleSend}
-                                    disabled={!message.trim()}
+                                </Box>
+                                <Typography variant="h6" sx={{
+                                    color: '#3B4A54',
+                                    fontWeight: 300,
+                                    marginBottom: '8px',
+                                    fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.5rem' }
+                                }}>
+                                    Bienvenue sur E-Tafa
+                                </Typography>
+                                <Typography variant="body1" sx={{
+                                    color: '#667781',
+                                    maxWidth: { xs: '300px', sm: '400px' },
+                                    marginBottom: '24px',
+                                    fontSize: { xs: '0.85rem', sm: '0.9rem', md: '1rem' },
+                                    marginLeft: 'auto',
+                                    marginRight: 'auto'
+                                }}>
+                                    Sélectionnez une conversation pour commencer à discuter
+                                </Typography>
+                                <Button
+                                    variant="contained"
                                     sx={{
-                                        bgcolor: 'primary.main',
-                                        color: 'white',
-                                        '&:hover': { bgcolor: '#0C7D6F' },
-                                        width: 36,
-                                        height: 36
+                                        borderRadius: '20px',
+                                        padding: { xs: '8px 24px', sm: '8px 32px' },
+                                        textTransform: 'none',
+                                        fontSize: { xs: '0.85rem', sm: '0.9rem', md: '1rem' }
                                     }}
                                 >
-                                    <Send sx={{ fontSize: 20 }} />
-                                </IconButton>
+                                    Démarrer une discussion
+                                </Button>
                             </Box>
-                        </Paper>
-                    </Box>
-                ) : (
-                    <Box sx={{
-                        flex: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        bgcolor: '#F8F9FA',
-                        borderLeft: '1px solid #E0E0E0'
-                    }}>
-                        <Box sx={{ textAlign: 'center', p: 4 }}>
-                            <Box sx={{
-                                width: 200,
-                                height: 200,
-                                borderRadius: '50%',
-                                bgcolor: '#E0F0E7',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                mx: 'auto',
-                                mb: 3
-                            }}>
-                                <Chat sx={{
-                                    color: '#128C7E',
-                                    fontSize: 80,
-                                    opacity: 0.3
-                                }} />
-                            </Box>
-                            <Typography variant="h6" sx={{
-                                color: '#3B4A54',
-                                fontWeight: 300,
-                                mb: 1
-                            }}>
-                                Bienvenue sur E-Tafa
-                            </Typography>
-                            <Typography variant="body1" sx={{
-                                color: '#667781',
-                                maxWidth: 400,
-                                mb: 3
-                            }}>
-                                Sélectionnez une conversation pour commencer à discuter ou créez une nouvelle conversation
-                            </Typography>
-                            <Button
-                                variant="contained"
-                                sx={{
-                                    bgcolor: 'primary.main',
-                                    borderRadius: 20,
-                                    px: 4,
-                                    py: 1,
-                                    textTransform: 'none',
-                                    '&:hover': {
-                                        bgcolor: '#0C7D6F'
-                                    }
-                                }}
-                            >
-                                Démarrer une discussion
-                            </Button>
                         </Box>
-                    </Box>
-                )}
+                    )}
+                </Box>
             </Box>
         </ThemeProvider>
     );
