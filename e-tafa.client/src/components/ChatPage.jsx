@@ -1,4 +1,5 @@
-﻿/* eslint-disable no-unused-vars */
+﻿/* eslint-disable no-dupe-keys */
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import {
     AppBar, Toolbar, IconButton, TextField,
@@ -6,14 +7,14 @@ import {
     ListItemText, Badge, Box, Button,
     Select, MenuItem, InputAdornment, Paper,
     useMediaQuery, ThemeProvider, createTheme,
-    Typography, Drawer, useTheme
+    Typography, Drawer, useTheme, Divider
 } from '@mui/material';
 import {
     Search, Send, Language, ArrowBack,
     Circle as CircleOnline, CheckCircle,
     Chat, People, Call, Settings,
     MoreVert, EmojiEmotions, AttachFile,
-    Menu as MenuIcon
+    Menu as MenuIcon, Logout
 } from '@mui/icons-material';
 
 // WhatsApp-inspired theme
@@ -40,9 +41,10 @@ const theme = createTheme({
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundColor: '#128C7E',
-                    color: '#FFFFFF',
-                    boxShadow: 'none'
+                    backgroundColor: '#F0F2F5', // Même couleur que le sidebar
+                    color: '#3B4A54', // Texte foncé pour contraste
+                    boxShadow: 'none',
+                    borderBottom: '1px solid #E0E0E0' // Ligne de séparation
                 }
             }
         },
@@ -82,6 +84,7 @@ const ChatPage = () => {
     const [search, setSearch] = useState('');
     const [activeTab, setActiveTab] = useState('chats');
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     const muiTheme = useTheme();
     const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
@@ -138,149 +141,261 @@ const ChatPage = () => {
         <Box sx={{
             display: 'flex',
             flexDirection: 'column',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            py: 2,
+            paddingTop: '16px',
             height: '100%'
         }}>
-            {[
-                { tab: 'chats', icon: Chat, badge: 5 },
-                { tab: 'contacts', icon: People },
-                { tab: 'calls', icon: Call },
-                { tab: 'settings', icon: Settings }
-            ].map(({ tab, icon: Icon, badge }) => (
+            <Box>
+                {[
+                    { tab: 'chats', icon: Chat, badge: 5 },
+                    { tab: 'contacts', icon: People },
+                    { tab: 'calls', icon: Call }
+                ].map(({ tab, icon: Icon, badge }) => (
+                    <IconButton
+                        key={tab}
+                        sx={{
+                            marginBottom: '24px',
+                            backgroundColor: activeTab === tab ? '#E0F0E7' : 'transparent',
+                            borderRadius: '50%',
+                            '&:hover': {
+                                backgroundColor: activeTab === tab ? '#E0F0E7' : '#E5E5E5'
+                            }
+                        }}
+                        onClick={() => {
+                            setActiveTab(tab);
+                            setDrawerOpen(false);
+                        }}
+                    >
+                        {badge ? (
+                            <Badge badgeContent={badge} color="primary">
+                                <Icon sx={{ color: activeTab === tab ? '#128C7E' : '#54656F', fontSize: 26 }} />
+                            </Badge>
+                        ) : (
+                            <Icon sx={{ color: activeTab === tab ? '#128C7E' : '#54656F', fontSize: 26 }} />
+                        )}
+                    </IconButton>
+                ))}
+            </Box>
+
+            <Box sx={{ marginBottom: '16px' }}>
                 <IconButton
-                    key={tab}
                     sx={{
-                        mb: 3,
-                        backgroundColor: activeTab === tab ? '#E0F0E7' : 'transparent',
+                        backgroundColor: activeTab === 'settings' ? '#E0F0E7' : 'transparent',
                         borderRadius: '50%',
                         '&:hover': {
-                            backgroundColor: activeTab === tab ? '#E0F0E7' : '#E5E5E5'
+                            backgroundColor: activeTab === 'settings' ? '#E0F0E7' : '#E5E5E5'
                         }
                     }}
                     onClick={() => {
-                        setActiveTab(tab);
+                        setActiveTab('settings');
                         setDrawerOpen(false);
                     }}
                 >
-                    {badge ? (
-                        <Badge badgeContent={badge} color="primary">
-                            <Icon sx={{ color: activeTab === tab ? '#128C7E' : '#54656F', fontSize: 26 }} />
-                        </Badge>
-                    ) : (
-                        <Icon sx={{ color: activeTab === tab ? '#128C7E' : '#54656F', fontSize: 26 }} />
-                    )}
+                    <Settings sx={{ color: activeTab === 'settings' ? '#128C7E' : '#54656F', fontSize: 26 }} />
                 </IconButton>
-            ))}
+            </Box>
         </Box>
     );
 
-    return (
-        <ThemeProvider theme={theme}>
-            <Box sx={{
-                display: 'flex',
-                height: '100vh',
-                width: '100%',
-                bgcolor: 'background.default',
-                overflowX: 'hidden'
-            }}>
-                {/* Mobile Drawer for Sidebar */}
-                {(isMobile || isTablet) && (
-                    <Drawer
-                        open={drawerOpen}
-                        onClose={() => setDrawerOpen(false)}
-                        variant="temporary"
-                    >
-                        <SidebarIcons />
-                    </Drawer>
-                )}
-
-                {/* Permanent Sidebar for Desktop/Tablet */}
-                <Box sx={{
-                    width: '70px',
-                    flexShrink: 0,
-                    bgcolor: '#F0F2F5',
-                    borderRight: '1px solid #E0E0E0',
-                    display: (isMobile || isTablet) && activeChat ? 'none' : 'block'
-                }}>
-                    <SidebarIcons />
-                </Box>
-
-                {/* Conversation List */}
-                <Paper sx={{
-                    width: {
-                        xs: activeChat ? '0' : '100%',
-                        sm: activeChat ? '0' : '320px',
-                        md: '360px'
-                    },
-                    display: {
-                        xs: activeChat ? 'none' : 'flex',
-                        sm: activeChat ? 'none' : 'flex',
-                        md: 'flex'
-                    },
-                    flexDirection: 'column',
-                    transition: 'width 0.3s',
-                    overflow: 'hidden',
-                    flexShrink: 0
-                }}>
-                    <AppBar position="static">
-                        <Toolbar sx={{
-                            px: { xs: 1, sm: 2 },
-                            minHeight: { xs: 48, sm: 56 }
-                        }}>
-                            {(isMobile || isTablet) && (
-                                <IconButton onClick={() => setDrawerOpen(true)} sx={{ mr: 1, color: 'white' }}>
-                                    <MenuIcon />
-                                </IconButton>
-                            )}
-                            <Avatar sx={{
-                                bgcolor: 'secondary.main',
-                                mr: 2,
-                                width: { xs: 32, sm: 36 },
-                                height: { xs: 32, sm: 36 }
-                            }} src="/profile.jpg" />
-                            <Typography variant="h6" sx={{
-                                flexGrow: 1,
-                                fontSize: { xs: '1rem', sm: '1.1rem' }
-                            }}>
-                                E-Tafa
-                            </Typography>
-                            <IconButton>
-                                <MoreVert sx={{ color: 'white' }} />
-                            </IconButton>
-                        </Toolbar>
-                        <Box sx={{
-                            p: { xs: 1, sm: 2 },
-                            bgcolor: 'background.paper'
-                        }}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                placeholder="Rechercher..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <Search sx={{ color: '#667781' }} />
-                                        </InputAdornment>
-                                    ),
-                                    sx: {
-                                        bgcolor: '#F0F2F5',
-                                        borderRadius: '20px',
-                                        height: 36,
-                                        fontSize: '0.9rem',
-                                        pr: 1
-                                    }
-                                }}
-                            />
-                        </Box>
-                    </AppBar>
-
+    // Render different content based on active tab
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'contacts':
+                return (
                     <List sx={{
                         overflowY: 'auto',
                         flex: 1,
-                        bgcolor: 'background.paper',
+                        backgroundColor: 'background.paper',
+                        '&::-webkit-scrollbar': { width: '6px' },
+                        '&::-webkit-scrollbar-thumb': { backgroundColor: '#C5C5C5', borderRadius: '3px' }
+                    }}>
+                        {filteredUsers.map((user) => (
+                            <ListItem
+                                button
+                                key={user.id}
+                                onClick={() => setActiveChat(user.id)}
+                                sx={{
+                                    paddingTop: '8px',
+                                    paddingBottom: '8px',
+                                    paddingLeft: { xs: '8px', sm: '16px' },
+                                    paddingRight: { xs: '8px', sm: '16px' },
+                                    borderLeft: activeChat === user.id ? '3px solid #128C7E' : 'none',
+                                    backgroundColor: activeChat === user.id ? '#F5F5F5' : 'inherit',
+                                    paddingLeft: activeChat === user.id ? '13px' : '16px'
+                                }}
+                            >
+                                <ListItemAvatar>
+                                    <Badge
+                                        overlap="circular"
+                                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                        badgeContent={user.online && (
+                                            <CircleOnline sx={{
+                                                width: { xs: '10px', sm: '12px' },
+                                                height: { xs: '10px', sm: '12px' },
+                                                border: '2px solid white'
+                                            }} color="success" />
+                                        )}
+                                    >
+                                        <Avatar sx={{
+                                            backgroundColor: 'primary.main',
+                                            width: { xs: '40px', sm: '45px' },
+                                            height: { xs: '40px', sm: '45px' }
+                                        }}>
+                                            {user.name[0]}
+                                        </Avatar>
+                                    </Badge>
+                                </ListItemAvatar>
+                                <ListItemText
+                                    primary={
+                                        <Typography sx={{
+                                            fontWeight: 500,
+                                            fontSize: { xs: '0.9rem', sm: '0.95rem' },
+                                            color: '#3B4A54',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap'
+                                        }}>
+                                            {user.name}
+                                        </Typography>
+                                    }
+                                    secondary={
+                                        <Typography sx={{
+                                            fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap'
+                                        }}>
+                                            {user.online ? "En ligne" : "Hors ligne"}
+                                        </Typography>
+                                    }
+                                    sx={{ margin: 0, paddingRight: '8px' }}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                );
+
+            case 'calls':
+                return (
+                    <List sx={{
+                        overflowY: 'auto',
+                        flex: 1,
+                        backgroundColor: 'background.paper',
+                        '&::-webkit-scrollbar': { width: '6px' },
+                        '&::-webkit-scrollbar-thumb': { backgroundColor: '#C5C5C5', borderRadius: '3px' }
+                    }}>
+                        {conversations.map((conv) => (
+                            <ListItem
+                                button
+                                key={conv.id}
+                                sx={{
+                                    paddingTop: '8px',
+                                    paddingBottom: '8px',
+                                    paddingLeft: { xs: '8px', sm: '16px' },
+                                    paddingRight: { xs: '8px', sm: '16px' }
+                                }}
+                            >
+                                <ListItemAvatar>
+                                    <Avatar sx={{
+                                        backgroundColor: 'primary.main',
+                                        width: { xs: '40px', sm: '45px' },
+                                        height: { xs: '40px', sm: '45px' }
+                                    }}>
+                                        {conv.name[0]}
+                                    </Avatar>
+                                </ListItemAvatar>
+                                <ListItemText
+                                    primary={
+                                        <Typography sx={{
+                                            fontWeight: 500,
+                                            fontSize: { xs: '0.9rem', sm: '0.95rem' },
+                                            color: '#3B4A54',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap'
+                                        }}>
+                                            {conv.name}
+                                        </Typography>
+                                    }
+                                    secondary={
+                                        <Typography sx={{
+                                            fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap'
+                                        }}>
+                                            Dernier appel: {conv.time}
+                                        </Typography>
+                                    }
+                                    sx={{ margin: 0, paddingRight: '8px' }}
+                                />
+                                <Box sx={{
+                                    minWidth: { xs: '40px', sm: '50px' },
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-end',
+                                    flexShrink: 0
+                                }}>
+                                    <IconButton size="small" sx={{ color: '#128C7E' }}>
+                                        <Call fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            </ListItem>
+                        ))}
+                    </List>
+                );
+
+            case 'settings':
+                return (
+                    <Box sx={{
+                        overflowY: 'auto',
+                        flex: 1,
+                        backgroundColor: 'background.paper',
+                        '&::-webkit-scrollbar': { width: '6px' },
+                        '&::-webkit-scrollbar-thumb': { backgroundColor: '#C5C5C5', borderRadius: '3px' }
+                    }}>
+                        <List>
+                            <ListItem>
+                                <ListItemText
+                                    primary="Paramètres"
+                                    primaryTypographyProps={{ fontWeight: 'bold', fontSize: '1.1rem' }}
+                                />
+                            </ListItem>
+                            <Divider />
+
+                            <ListItem button>
+                                <ListItemText primary="Notifications" />
+                            </ListItem>
+                            <ListItem button>
+                                <ListItemText primary="Confidentialité" />
+                            </ListItem>
+                            <ListItem button>
+                                <ListItemText primary="Compte" />
+                            </ListItem>
+                            <Divider />
+
+                            <ListItem button onClick={() => alert('Déconnexion effectuée')}>
+                                <ListItemAvatar>
+                                    <Avatar sx={{ bgcolor: '#f5f5f5' }}>
+                                        <Logout sx={{ color: '#f44336' }} />
+                                    </Avatar>
+                                </ListItemAvatar>
+                                <ListItemText
+                                    primary="Se déconnecter"
+                                    primaryTypographyProps={{ color: '#f44336' }}
+                                />
+                            </ListItem>
+                        </List>
+                    </Box>
+                );
+
+            default: // 'chats'
+                return (
+                    <List sx={{
+                        overflowY: 'auto',
+                        flex: 1,
+                        backgroundColor: 'background.paper',
                         '&::-webkit-scrollbar': { width: '6px' },
                         '&::-webkit-scrollbar-thumb': { backgroundColor: '#C5C5C5', borderRadius: '3px' }
                     }}>
@@ -291,8 +406,13 @@ const ChatPage = () => {
                                 selected={activeChat === conv.id}
                                 onClick={() => setActiveChat(conv.id)}
                                 sx={{
-                                    py: 1,
-                                    px: { xs: 1, sm: 2 }
+                                    paddingTop: '8px',
+                                    paddingBottom: '8px',
+                                    paddingLeft: { xs: '8px', sm: '16px' },
+                                    paddingRight: { xs: '8px', sm: '16px' },
+                                    borderLeft: activeChat === conv.id ? '3px solid #128C7E' : 'none',
+                                    backgroundColor: activeChat === conv.id ? '#F5F5F5' : 'inherit',
+                                    paddingLeft: activeChat === conv.id ? '13px' : '16px'
                                 }}
                             >
                                 <ListItemAvatar>
@@ -301,16 +421,16 @@ const ChatPage = () => {
                                         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                         badgeContent={conv.online && (
                                             <CircleOnline sx={{
-                                                width: { xs: 10, sm: 12 },
-                                                height: { xs: 10, sm: 12 },
+                                                width: { xs: '10px', sm: '12px' },
+                                                height: { xs: '10px', sm: '12px' },
                                                 border: '2px solid white'
                                             }} color="success" />
                                         )}
                                     >
                                         <Avatar sx={{
-                                            bgcolor: 'primary.main',
-                                            width: { xs: 40, sm: 45 },
-                                            height: { xs: 40, sm: 45 }
+                                            backgroundColor: 'primary.main',
+                                            width: { xs: '40px', sm: '45px' },
+                                            height: { xs: '40px', sm: '45px' }
                                         }}>
                                             {conv.name[0]}
                                         </Avatar>
@@ -339,10 +459,10 @@ const ChatPage = () => {
                                             {conv.lastMsg}
                                         </Typography>
                                     }
-                                    sx={{ my: 0, pr: 1 }}
+                                    sx={{ margin: 0, paddingRight: '8px' }}
                                 />
                                 <Box sx={{
-                                    minWidth: { xs: 40, sm: 50 },
+                                    minWidth: { xs: '40px', sm: '50px' },
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'flex-end',
@@ -357,7 +477,7 @@ const ChatPage = () => {
                                         <Badge
                                             badgeContent={conv.unread}
                                             sx={{
-                                                mt: 0.5,
+                                                marginTop: '4px',
                                                 '& .MuiBadge-badge': { backgroundColor: '#25D366' }
                                             }}
                                         />
@@ -366,6 +486,117 @@ const ChatPage = () => {
                             </ListItem>
                         ))}
                     </List>
+                );
+        }
+    };
+
+    return (
+        <ThemeProvider theme={theme}>
+            <Box sx={{
+                display: 'flex',
+                height: '100vh',
+                width: '100%',
+                backgroundColor: 'background.default',
+                overflowX: 'hidden'
+            }}>
+                {/* Mobile Drawer for Sidebar */}
+                {(isMobile || isTablet) && (
+                    <Drawer
+                        open={drawerOpen}
+                        onClose={() => setDrawerOpen(false)}
+                        variant="temporary"
+                    >
+                        <SidebarIcons />
+                    </Drawer>
+                )}
+
+                {/* Permanent Sidebar for Desktop */}
+                {isLargeScreen && (
+                    <Box sx={{
+                        width: '70px',
+                        flexShrink: 0,
+                        backgroundColor: '#F0F2F5',
+                        borderRight: '1px solid #E0E0E0'
+                    }}>
+                        <SidebarIcons />
+                    </Box>
+                )}
+
+                {/* Conversation List */}
+                <Paper sx={{
+                    width: {
+                        xs: activeChat ? '0' : '100%',
+                        sm: activeChat ? '0' : '320px',
+                        md: '360px'
+                    },
+                    display: {
+                        xs: activeChat ? 'none' : 'flex',
+                        sm: activeChat ? 'none' : 'flex',
+                        md: 'flex'
+                    },
+                    flexDirection: 'column',
+                    transition: 'width 0.3s',
+                    overflow: 'hidden',
+                    flexShrink: 0,
+                    borderRight: isLargeScreen ? '1px solid #E0E0E0' : 'none'
+                }}>
+                    <AppBar position="static">
+                        <Toolbar sx={{
+                            paddingLeft: { xs: '8px', sm: '16px' },
+                            paddingRight: { xs: '8px', sm: '16px' },
+                            minHeight: { xs: '48px', sm: '56px' }
+                        }}>
+                            {(isMobile || isTablet) && (
+                                <IconButton onClick={() => setDrawerOpen(true)} sx={{ marginRight: '8px', color: 'text.primary' }}>
+                                    <MenuIcon />
+                                </IconButton>
+                            )}
+                            <Avatar sx={{
+                                backgroundColor: 'secondary.main',
+                                marginRight: '16px',
+                                width: { xs: '32px', sm: '36px' },
+                                height: { xs: '32px', sm: '36px' }
+                            }} src="/profile.jpg" />
+                            <Typography variant="h6" sx={{
+                                flexGrow: 1,
+                                fontSize: { xs: '1rem', sm: '1.1rem' },
+                                color: 'text.primary'
+                            }}>
+                                E-Tafa
+                            </Typography>
+                            <IconButton>
+                                <MoreVert sx={{ color: 'text.primary' }} />
+                            </IconButton>
+                        </Toolbar>
+                        <Box sx={{
+                            padding: { xs: '8px', sm: '16px' },
+                            backgroundColor: 'background.paper'
+                        }}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                placeholder="Rechercher..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Search sx={{ color: '#667781' }} />
+                                        </InputAdornment>
+                                    ),
+                                    sx: {
+                                        backgroundColor: '#F0F2F5',
+                                        borderRadius: '20px',
+                                        height: '36px',
+                                        fontSize: '0.9rem',
+                                        paddingRight: '8px'
+                                    }
+                                }}
+                            />
+                        </Box>
+                    </AppBar>
+
+                    {renderTabContent()}
                 </Paper>
 
                 {/* Main Chat Area */}
@@ -377,7 +608,7 @@ const ChatPage = () => {
                         md: 'flex'
                     },
                     flexDirection: 'column',
-                    bgcolor: '#ECE5DD',
+                    backgroundColor: '#ECE5DD',
                     backgroundImage: 'url(https://www.transparenttextures.com/patterns/axiom-pattern.png)',
                     backgroundBlendMode: 'soft-light',
                     width: {
@@ -392,19 +623,20 @@ const ChatPage = () => {
                         <>
                             <AppBar position="static">
                                 <Toolbar sx={{
-                                    px: { xs: 1, sm: 2 },
-                                    minHeight: { xs: 48, sm: 56 }
+                                    paddingLeft: { xs: '8px', sm: '16px' },
+                                    paddingRight: { xs: '8px', sm: '16px' },
+                                    minHeight: { xs: '48px', sm: '56px' }
                                 }}>
                                     {(isMobile || isTablet) && (
-                                        <IconButton onClick={() => setActiveChat(null)} sx={{ mr: 1, color: 'white' }}>
+                                        <IconButton onClick={() => setActiveChat(null)} sx={{ marginRight: '8px', color: 'text.primary' }}>
                                             <ArrowBack />
                                         </IconButton>
                                     )}
                                     <Avatar sx={{
-                                        bgcolor: 'secondary.main',
-                                        mr: 2,
-                                        width: { xs: 32, sm: 36 },
-                                        height: { xs: 32, sm: 36 }
+                                        backgroundColor: 'secondary.main',
+                                        marginRight: '16px',
+                                        width: { xs: '32px', sm: '36px' },
+                                        height: { xs: '32px', sm: '36px' }
                                     }}>
                                         {conversations.find(c => c.id === activeChat)?.name[0] || users.find(u => u.id === activeChat)?.name[0]}
                                     </Avatar>
@@ -415,7 +647,8 @@ const ChatPage = () => {
                                                 fontSize: { xs: '0.9rem', sm: '0.95rem' },
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
+                                                whiteSpace: 'nowrap',
+                                                color: 'text.primary'
                                             }}>
                                                 {conversations.find(c => c.id === activeChat)?.name || users.find(u => u.id === activeChat)?.name}
                                             </Typography>
@@ -425,7 +658,8 @@ const ChatPage = () => {
                                                 fontSize: { xs: '0.7rem', sm: '0.75rem' },
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
+                                                whiteSpace: 'nowrap',
+                                                color: 'text.secondary'
                                             }}>
                                                 {conversations.find(c => c.id === activeChat)?.online || users.find(u => u.id === activeChat)?.online ?
                                                     "En ligne" : "Hors ligne"}
@@ -435,25 +669,24 @@ const ChatPage = () => {
                                     />
                                     <Box sx={{
                                         display: 'flex',
-                                        gap: { xs: 0.5, sm: 1 },
+                                        gap: { xs: '4px', sm: '8px' },
                                         flexShrink: 0
                                     }}>
                                         <IconButton size="small">
-                                            <Call sx={{ color: 'white', fontSize: { xs: 20, sm: 22 } }} />
-                                        </IconButton>
-                                        <IconButton size="small">
-                                            <People sx={{ color: 'white', fontSize: { xs: 20, sm: 22 } }} />
+                                            <People sx={{ color: 'text.primary', fontSize: { xs: '20px', sm: '22px' } }} />
                                         </IconButton>
                                         <Select
                                             value={language}
                                             onChange={(e) => setLanguage(e.target.value)}
                                             size="small"
                                             sx={{
-                                                color: 'white',
-                                                '.MuiSvgIcon-root': { color: 'white' },
+                                                color: 'text.primary',
+                                                '.MuiSvgIcon-root': { color: 'text.primary' },
                                                 '& .MuiSelect-select': {
-                                                    py: 0.5,
-                                                    px: 1,
+                                                    paddingTop: '4px',
+                                                    paddingBottom: '4px',
+                                                    paddingLeft: '8px',
+                                                    paddingRight: '24px',
                                                     fontSize: { xs: '0.8rem', sm: '0.9rem' }
                                                 }
                                             }}
@@ -463,6 +696,12 @@ const ChatPage = () => {
                                             <MenuItem value="es">ES</MenuItem>
                                             <MenuItem value="de">DE</MenuItem>
                                         </Select>
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => setSettingsOpen(true)}
+                                        >
+                                            <Settings sx={{ color: 'text.primary', fontSize: { xs: '20px', sm: '22px' } }} />
+                                        </IconButton>
                                     </Box>
                                 </Toolbar>
                             </AppBar>
@@ -471,10 +710,10 @@ const ChatPage = () => {
                             <Box sx={{
                                 flex: 1,
                                 overflowY: 'auto',
-                                p: { xs: 1, sm: 2 },
+                                padding: { xs: '8px', sm: '16px' },
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: 1,
+                                gap: '8px',
                                 '&::-webkit-scrollbar': { width: '6px' },
                                 '&::-webkit-scrollbar-thumb': { backgroundColor: '#C5C5C5', borderRadius: '3px' },
                                 overflowX: 'hidden'
@@ -545,13 +784,13 @@ const ChatPage = () => {
                                     maxWidth: '100%'
                                 }}>
                                     <IconButton size="small">
-                                        <EmojiEmotions sx={{ color: '#54656F', fontSize: { xs: 20, sm: 22 } }} />
+                                        <EmojiEmotions sx={{ color: '#54656F', fontSize: { xs: '20px', sm: '22px' } }} />
                                     </IconButton>
                                     <IconButton size="small">
                                         <AttachFile sx={{
                                             color: '#54656F',
                                             transform: 'rotate(45deg)',
-                                            fontSize: { xs: 20, sm: 22 }
+                                            fontSize: { xs: '20px', sm: '22px' }
                                         }} />
                                     </IconButton>
                                     <TextField
@@ -585,7 +824,7 @@ const ChatPage = () => {
                                             height: { xs: '32px', sm: '36px' }
                                         }}
                                     >
-                                        <Send sx={{ fontSize: { xs: 18, sm: 20 } }} />
+                                        <Send sx={{ fontSize: { xs: '18px', sm: '20px' } }} />
                                     </IconButton>
                                 </Box>
                             </Paper>
@@ -611,12 +850,13 @@ const ChatPage = () => {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    margin: '0 auto',
+                                    marginLeft: 'auto',
+                                    marginRight: 'auto',
                                     marginBottom: '24px'
                                 }}>
                                     <Chat sx={{
                                         color: '#128C7E',
-                                        fontSize: { xs: 50, sm: 60, md: 80 },
+                                        fontSize: { xs: '50px', sm: '60px', md: '80px' },
                                         opacity: 0.3
                                     }} />
                                 </Box>
@@ -642,7 +882,10 @@ const ChatPage = () => {
                                     variant="contained"
                                     sx={{
                                         borderRadius: '20px',
-                                        padding: { xs: '8px 24px', sm: '8px 32px' },
+                                        paddingLeft: { xs: '24px', sm: '32px' },
+                                        paddingRight: { xs: '24px', sm: '32px' },
+                                        paddingTop: '8px',
+                                        paddingBottom: '8px',
                                         textTransform: 'none',
                                         fontSize: { xs: '0.85rem', sm: '0.9rem', md: '1rem' }
                                     }}
@@ -654,6 +897,53 @@ const ChatPage = () => {
                     )}
                 </Box>
             </Box>
+
+            {/* Settings Drawer */}
+            <Drawer
+                anchor="right"
+                open={settingsOpen}
+                onClose={() => setSettingsOpen(false)}
+                sx={{
+                    '& .MuiDrawer-paper': {
+                        width: isMobile ? '100%' : 320,
+                        backgroundColor: 'background.paper'
+                    }
+                }}
+            >
+                <Box sx={{ p: 3 }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                        Paramètres
+                    </Typography>
+
+                    <List>
+                        <ListItem button>
+                            <ListItemText primary="Notifications" />
+                        </ListItem>
+                        <ListItem button>
+                            <ListItemText primary="Confidentialité" />
+                        </ListItem>
+                        <ListItem button>
+                            <ListItemText primary="Compte" />
+                        </ListItem>
+                        <Divider sx={{ my: 2 }} />
+
+                        <ListItem button onClick={() => {
+                            alert('Déconnexion effectuée');
+                            setSettingsOpen(false);
+                        }}>
+                            <ListItemAvatar>
+                                <Avatar sx={{ bgcolor: '#f5f5f5' }}>
+                                    <Logout sx={{ color: '#f44336' }} />
+                                </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                                primary="Se déconnecter"
+                                primaryTypographyProps={{ color: '#f44336' }}
+                            />
+                        </ListItem>
+                    </List>
+                </Box>
+            </Drawer>
         </ThemeProvider>
     );
 };
